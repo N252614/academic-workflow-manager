@@ -10,6 +10,7 @@ flask-migrate = "*"
 flask-bcrypt = "*"
 flask-login = "*"
 psycopg2-binary = "*"
+flask-cors = "*"
 
 [dev-packages]
 
