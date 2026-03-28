@@ -1,19 +1,17 @@
-// Import React Router components for navigation
+// Import router tools
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-// Import main pages from src/pages
+// Import pages
 import Dashboard from "./pages/Dashboard";
 import CoursePage from "./pages/CoursePage";
 import AssignmentDetailsPage from "./pages/AssignmentDetailsPage";
 
-// Main App component
+// Main app component
 function App() {
   return (
-    // Router wraps the entire application and enables navigation
     <Router>
       <div style={{ padding: "20px" }}>
-        
-        {/* Navigation menu (simple links between pages) */}
+        {/* Navigation links */}
         <nav>
           <Link to="/">Dashboard</Link> |{" "}
           <Link to="/course">Course</Link> |{" "}
@@ -22,24 +20,21 @@ function App() {
 
         <hr />
 
-        {/* Define application routes */}
+        {/* App routes */}
         <Routes>
-          
-          {/* Dashboard page (main page) */}
+          {/* Dashboard page */}
           <Route path="/" element={<Dashboard />} />
 
-          {/* Course page (list of courses or single course) */}
+          {/* Course pages */}
           <Route path="/course" element={<CoursePage />} />
           <Route path="/course/:id" element={<CoursePage />} />
 
-          {/* Assignment details page */}
+          {/* Assignment page */}
           <Route path="/assignments/:id" element={<AssignmentDetailsPage />} />
-        
         </Routes>
       </div>
     </Router>
   );
 }
 
-// Export App component
 export default App;

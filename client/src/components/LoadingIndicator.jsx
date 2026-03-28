@@ -1,4 +1,5 @@
 function LoadingIndicator() {
+  // Show loading message
   return <p>Loading...</p>;
 }
 
