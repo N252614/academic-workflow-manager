@@ -1,16 +1,122 @@
-# React + Vite
+# Academic Workflow Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Description
+Academic Workflow Manager is a full-featured React application designed to help users organize academic tasks.
 
-Currently, two official plugins are available:
+The application allows users to:
+	•	Manage courses
+	•	Create and track assignments
+	•	Add and manage student submissions
+	•	Generate AI-based suggestions for assignments
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project demonstrates modern React development practices including state management, asynchronous data handling, and component-based architecture.
 
-## React Compiler
+## Technologies Used
+	•	React
+	•	Vite
+	•	JavaScript (ES6+)
+	•	CSS
+	•	Vitest
+	•	React Testing Library
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Installation
+Clone the repository:
+```bash
+git clone https://github.com/N252614/academic-workflow-manager.git
+```
+Navigate into the project folder:
+```bash
+cd academic-workflow-manager
+```
+Install dependencies:
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+## Running the Project
+Start the development server:
+```bash
+npm run dev
+```
+Open the application in your browser:
+```bash
+http://localhost:5173
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Running Tests
+Run automated tests using:
+```bash
+npm run test
+```
+All tests are written using Vitest and React Testing Library.
+
+## Features
+	•	Course management (create, edit, delete)
+	•	Assignment management within each course
+	•	Submission tracking with status (submitted, graded, missing)
+	•	AI suggestion generation for assignments
+	•	Pagination for courses
+	•	Clean and user-friendly interface
+	•	Error handling and loading states
+	•	Fully tested components
+
+## Screenshots
+
+### Dashboard
+![Dashboard](./screenshot-dashboard.png)
+
+### Courses Page
+![Courses Page](./screenshot-courses.png)
+
+### Course Details
+![Course Details](./screenshot-course-details.png)
+
+### Assignment Details
+![Assignment Details](./screenshot-assignment-details.png)
+
+
+## Project Structure
+```bash
+src/
+  components/
+    AlertBanner.jsx
+    AssignmentForm.jsx
+    AssignmentList.jsx
+    ErrorMessage.jsx
+    LoadingIndicator.jsx
+    ProgressSummary.jsx
+    SubmissionList.jsx
+    SubmissionStatus.jsx
+
+  pages/
+    Dashboard.jsx
+    CoursePage.jsx
+    AssignmentDetailsPage.jsx
+
+  App.jsx
+  main.jsx
+
+tests/
+  Dashboard.test.jsx
+  CoursePage.test.jsx
+  AssignmentDetailsPage.test.jsx
+  ```
+  ## Testing
+  	All components are tested using Vitest
+	•	API calls are mocked
+	•	Tests cover:
+	•	Rendering UI elements
+	•	User interactions
+	•	Data loading behavior
+
+## Future Improvements
+	•	Backend integration with real database
+	•	User authentication system
+	•	Better UI/UX design
+	•	Mobile responsiveness improvements
+	•	Advanced filtering and search
+
+## Author
+
+Nataliia Katina
+

@@ -1,13 +1,15 @@
 # Import Flask and needed tools
-from flask import Flask, request
+from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Create Flask app
 app = Flask(__name__)
 
-# Enable CORS for React frontend
-CORS(app)
+# Secret key for session-based auth
+app.secret_key = "super-secret-key"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = False
 
 # Configure database (SQLite)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -16,7 +18,17 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Initialize database
 db = SQLAlchemy(app)
 
+
 # Models
+
+# User model for authentication (stores username and hashed password)
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+
 
 # Course model
 class Course(db.Model):
@@ -39,15 +51,98 @@ class Submission(db.Model):
     student_id = db.Column(db.Integer)
 
 
+# Helper to check if user is logged in
+def require_login():
+    if "user_id" not in session:
+        return {"error": "Unauthorized"}, 401
+    return None
+
+
+# Auth routes
+
+# Signup route
+@app.route("/signup", methods=["POST"])
+def signup():
+    data = request.json or {}
+
+    username = data.get("username")
+    password = data.get("password")
+
+    # Check for missing fields
+    if not username or not password:
+        return {"error": "Username and password are required"}, 400
+
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return {"error": "Username already exists"}, 400
+
+    # Create new user with hashed password
+    new_user = User(
+        username=username,
+        password_hash=generate_password_hash(password)
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    # Save user in session after signup
+    session["user_id"] = new_user.id
+
+    return {
+        "id": new_user.id,
+        "username": new_user.username
+    }, 201
+
+
+# Login route
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json or {}
+
+    username = data.get("username")
+    password = data.get("password")
+
+    # Check for missing fields
+    if not username or not password:
+        return {"error": "Username and password are required"}, 400
+
+    # Find user by username
+    user = User.query.filter_by(username=username).first()
+
+    # Check username and password
+    if not user or not check_password_hash(user.password_hash, password):
+        return {"error": "Invalid username or password"}, 401
+
+    # Save user in session
+    session["user_id"] = user.id
+
+    return {
+        "id": user.id,
+        "username": user.username
+    }, 200
+
+
+# Logout route
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.pop("user_id", None)
+    return {"message": "Logged out"}, 200
+
+
 # Routes - Courses
 
-# Get all courses
+# Get all courses with pagination
 @app.route("/courses", methods=["GET"])
 def get_courses():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 5, type=int)
 
-    paginated_courses = Course.query.paginate(page=page, per_page=per_page, error_out=False)
+    paginated_courses = Course.query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
 
     result = []
     for course in paginated_courses.items:
@@ -82,7 +177,14 @@ def get_course(id):
 # Create new course
 @app.route("/courses", methods=["POST"])
 def create_course():
-    data = request.json
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
+    data = request.json or {}
+
+    if not data.get("title"):
+        return {"error": "Title is required"}, 400
 
     new_course = Course(title=data["title"])
 
@@ -98,12 +200,16 @@ def create_course():
 # Update course title
 @app.route("/courses/<int:id>", methods=["PATCH"])
 def update_course(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
     course = Course.query.get(id)
 
     if not course:
         return {"error": "Course not found"}, 404
 
-    data = request.json
+    data = request.json or {}
 
     if "title" in data and data["title"].strip():
         course.title = data["title"]
@@ -119,6 +225,10 @@ def update_course(id):
 # Delete course
 @app.route("/courses/<int:id>", methods=["DELETE"])
 def delete_course(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
     course = Course.query.get(id)
 
     if not course:
@@ -148,7 +258,7 @@ def get_course_assignments(id):
     return result, 200
 
 
-# Get all assignments
+# Get all assignments with pagination
 @app.route("/assignments", methods=["GET"])
 def get_assignments():
     page = request.args.get("page", 1, type=int)
@@ -195,7 +305,14 @@ def get_assignment(id):
 # Create assignment
 @app.route("/assignments", methods=["POST"])
 def create_assignment():
-    data = request.json
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
+    data = request.json or {}
+
+    if not data.get("title") or not data.get("course_id"):
+        return {"error": "Title and course_id are required"}, 400
 
     new_assignment = Assignment(
         title=data["title"],
@@ -215,12 +332,16 @@ def create_assignment():
 # Update assignment title
 @app.route("/assignments/<int:id>", methods=["PATCH"])
 def update_assignment(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
     assignment = Assignment.query.get(id)
 
     if not assignment:
         return {"error": "Assignment not found"}, 404
 
-    data = request.json
+    data = request.json or {}
 
     if "title" in data and data["title"].strip():
         assignment.title = data["title"]
@@ -237,6 +358,10 @@ def update_assignment(id):
 # Delete assignment
 @app.route("/assignments/<int:id>", methods=["DELETE"])
 def delete_assignment(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
     assignment = Assignment.query.get(id)
 
     if not assignment:
@@ -253,7 +378,14 @@ def delete_assignment(id):
 # Create submission
 @app.route("/submissions", methods=["POST"])
 def create_submission():
-    data = request.json
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
+    data = request.json or {}
+
+    if not data.get("status") or not data.get("assignment_id") or not data.get("student_id"):
+        return {"error": "status, assignment_id, and student_id are required"}, 400
 
     new_submission = Submission(
         status=data["status"],
@@ -289,9 +421,37 @@ def get_submissions():
     return result, 200
 
 
+# Update submission status
+@app.route("/submissions/<int:id>", methods=["PATCH"])
+def update_submission(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
+    data = request.get_json() or {}
+
+    submission = Submission.query.get(id)
+    if not submission:
+        return {"error": "Submission not found"}, 404
+
+    submission.status = data.get("status", submission.status)
+
+    db.session.commit()
+
+    return {
+        "id": submission.id,
+        "status": submission.status,
+        "student_id": submission.student_id
+    }, 200
+
+
 # Delete submission
 @app.route("/submissions/<int:id>", methods=["DELETE"])
 def delete_submission(id):
+    auth_error = require_login()
+    if auth_error:
+        return auth_error
+
     submission = Submission.query.get(id)
 
     if not submission:
@@ -308,7 +468,7 @@ def delete_submission(id):
 # Generate AI study suggestion
 @app.route("/ai/suggestion", methods=["POST"])
 def get_ai_suggestion():
-    data = request.json
+    data = request.json or {}
 
     assignment_title = data.get("assignment_title", "").strip()
     submission_count = data.get("submission_count", 0)
