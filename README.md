@@ -63,16 +63,16 @@ All tests are written using Vitest and React Testing Library.
 ## Screenshots
 
 ### Dashboard
-![Dashboard](./screenshot-dashboard.png)
+![Dashboard](./client/screenshot-dashboard.png)
 
 ### Courses Page
-![Courses Page](./screenshot-courses.png)
+![Courses Page](./client/screenshot-courses.png)
 
 ### Course Details
-![Course Details](./screenshot-course-details.png)
+![Course Details](./client/screenshot-course-details.png)
 
 ### Assignment Details
-![Assignment Details](./screenshot-assignment-details.png)
+![Assignment Details](./client/screenshot-assignment-details.png)
 
 
 ## Project Structure
