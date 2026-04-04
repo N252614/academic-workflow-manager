@@ -90,24 +90,25 @@ src/
 
   pages/
     Dashboard.jsx
+	Dashboard.test.jsx
     CoursePage.jsx
+	CoursePage.test.jsx
     AssignmentDetailsPage.jsx
+	AssignmentDetailsPage.test.jsx
 
   App.jsx
   main.jsx
 
-tests/
-  Dashboard.test.jsx
-  CoursePage.test.jsx
-  AssignmentDetailsPage.test.jsx
+ 
   ```
-  ## Testing
-  	All components are tested using Vitest
-	•	API calls are mocked
-	•	Tests cover:
-	•	Rendering UI elements
-	•	User interactions
-	•	Data loading behavior
+## Testing
+    •   All components are tested using Vitest.
+    •   Tests are located inside the pages folder
+    •   API calls are mocked
+    •   Tests cover:
+    •   Rendering UI elements
+    •   User interactions
+    •   Data loading behavior
 
 ## Future Improvements
 	•	Backend integration with real database
